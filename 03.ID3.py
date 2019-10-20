@@ -39,7 +39,7 @@ def split_data(headers, a_list, attribute, class_value):
 
 
 def entropy(headers, a_list, attribute='PlayTennis', gain=False):
-    cnt = Counter(get_attribute_column(headers, a_list, attribute))  # Counter calculates the propotion of class
+    cnt = Counter(get_attribute_column(headers, a_list, attribute))  # Counter calculates the proportion of class
     num_instances = len(get_attribute_column(headers, a_list, attribute))
     probs = [x / num_instances for x in cnt.values()]  # x means count of each attribute.
     if not gain:
@@ -70,9 +70,18 @@ def drop_attribute(headers, dataset, attribute):
     return new_headers, new_dataset
 
 
+def most_common_outcome(headers, dataset):
+    cnt = Counter(get_attribute_column(root.headers, root.data, 'PlayTennis'))
+    return cnt.most_common(1)[0][0]
+
+
 def id3(root):
+    if len(root.headers) == 1:
+        root.decision = most_common_outcome(root.headers, root.data)
+        return
+
     outcome_value_set = set(get_attribute_column(root.headers, root.data, 'PlayTennis'))
-    if (len(outcome_value_set) == 1):
+    if len(outcome_value_set) == 1:
         root.decision = list(outcome_value_set)[0]
         return
 
@@ -80,19 +89,14 @@ def id3(root):
     root.decision_attribute = max_gain_attribute
     for attribute in set(get_attribute_column(root.headers, root.data, max_gain_attribute)):
         child_data = split_data(root.headers, root.data, max_gain_attribute, attribute)
+
+        if child_data is None or len(child_data) == 0:
+            root.decision = most_common_outcome(root.headers, root.data)
+            return
+
         (new_headers, new_dataset) = drop_attribute(root.headers, child_data, max_gain_attribute)
         root.child[attribute] = Node(new_headers, new_dataset)
         id3(root.child[attribute])
-
-
-def predict(example, root):
-    if root.decision is not None:
-        return root.decision
-    try:
-        prediction = predict(example, root.child[example[root.decision_attribute]])
-        return prediction
-    except:
-        return "No"
 
 
 root = Node(g_headers, data=g_dataset)
@@ -101,7 +105,10 @@ id3(root)
 
 def print_tree(root, disp=""):
     if root.decision is not None:
-        print(disp[:-4] + "THEN " + str(root.decision))
+        if len(disp) == 0:
+            print(str(root.decision))
+        else:
+            print(disp[:-4] + "THEN " + str(root.decision))
         return
     for attribute, node in root.child.items():
         print_tree(node, disp + "IF {} EQUALS {} AND ".format(root.decision_attribute, attribute))
