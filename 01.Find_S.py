@@ -18,17 +18,18 @@ Step 3: Output hypothesis h.
 import csv
 
 if __name__ == '__main__':
-    with open('ds1.csv') as csvFile:
-        data = [line[:-1] for line in csv.reader(csvFile) if line[-1] == "Y"]
-    print("Positive Examples are: {}".format(data))
-    S = ['o'] * len(data[0])
-    print("Output after each step:\n{}".format(S))
-    for example in data:
+    with open('ds1.csv') as csvFile: #opening the file to manipulate
+        data = [line[:-1] for line in csv.reader(csvFile) if line[-1] == "Y"] #Cosidering only positive examples (examples with "Y")
+    print("Positive Examples are: {}".format(data)) #Printing the postitive examples taken in last step
+    S = ['o'] * len(data[0])  #Initialising the specific hypothesis
+    print("Output after each step:\n{}".format(S)) 
+    #looping over the positive examples
+    for example in data: 
         i = 0
         for feature in example:
-            S[i] = feature if S[i] == 'o' or S[i] == feature else '?'
+            S[i] = feature if S[i] == 'o' or S[i] == feature else '?' #Changing the specific hypothesis according to the algorithm
             i += 1
-        print(S)
+        print(S) #printing the intermediate specific hypothesis after each iteration
 
 """
 Output:
