@@ -22,7 +22,7 @@ D = domain()
 
 def is_consistent(h1, h2):
     for x, y in zip(h1, h2):
-        if not (x == "?" or (x != "o" and (x == y or y == "o"))):
+        if x != "?" and (x == "o" or x != y):
             return False
     return True
 
