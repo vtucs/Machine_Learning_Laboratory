@@ -14,7 +14,7 @@ from sklearn.cluster import KMeans
 
 class_dict = {'setosa': 0, 'versicolor': 1, 'virginica': 2}
 l1 = [0, 1, 2]
-with open('ds4.csv') as csvFile:
+with open('ds5.csv') as csvFile:
     dataset = [line for line in csv.reader(csvFile)]
     dataset = dataset[1:]
     X = []
