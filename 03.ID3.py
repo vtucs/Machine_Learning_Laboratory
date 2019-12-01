@@ -9,23 +9,23 @@ import csv
 from collections import Counter
 
 with open('ds2.csv') as csvFile:
-    g_dataset = [tuple(line) for line in csv.reader(csvFile)]
-    g_headers = g_dataset[0]
-    g_dataset = g_dataset[1:]
+    g_data = [tuple(line) for line in csv.reader(csvFile)]
+    g_headers = g_data[0]
+    g_data = g_data[1:]
 
 
 class Node:
-    def __init__(self, headers, data, attribute=None):
-        self.decision_attribute = attribute
+    def __init__(self, headers, data):
+        self.decision_attribute = None
         self.child = {}
         self.headers = headers
         self.data = data
         self.decision = None
 
 
-def get_attribute_column(headers, dataset, attribute):
+def get_attribute_column(headers, data, attribute):
     i = headers.index(attribute)
-    a_list = [ele[i] for ele in dataset]
+    a_list = [ele[i] for ele in data]
     return a_list
 
 
@@ -33,20 +33,20 @@ def calculate_entropy(probs):
     return sum([-prob * math.log(prob, 2) for prob in probs])
 
 
-def split_data(headers, a_list, attribute, class_value):
+def split_data(headers, data, attribute, attr_value):
     i = headers.index(attribute)
-    return [ele for ele in a_list if ele[i] == class_value]
+    return [ele for ele in data if ele[i] == attr_value]
 
 
-def entropy(headers, a_list, attribute='PlayTennis', gain=False):
-    cnt = Counter(get_attribute_column(headers, a_list, attribute))  # Counter calculates the proportion of class
-    num_instances = len(get_attribute_column(headers, a_list, attribute))
+def entropy(headers, data, attribute='PlayTennis', gain=False):
+    cnt = Counter(get_attribute_column(headers, data, attribute))  # Counter calculates the proportion of class
+    num_instances = len(data)
     probs = [x / num_instances for x in cnt.values()]  # x means count of each attribute.
     if not gain:
         return calculate_entropy(probs)
     gain = 0
     for Class, prob in zip(cnt.keys(), probs):
-        gain += -prob * entropy(headers, split_data(headers, a_list, attribute, Class))
+        gain += -prob * entropy(headers, split_data(headers, data, attribute, Class))
     return gain
 
 
@@ -63,15 +63,15 @@ def information_gain(headers, data):
     return max_gain_attribute
 
 
-def drop_attribute(headers, dataset, attribute):
+def drop_attribute(headers, data, attribute):
     i = headers.index(attribute)
     new_headers = [ele for ele in headers if ele != attribute]
-    new_dataset = [tuple(data[:i] + data[i + 1:]) for data in dataset]
+    new_dataset = [tuple(data[:i] + data[i + 1:]) for data in data]
     return new_headers, new_dataset
 
 
-def most_common_outcome(headers, dataset):
-    cnt = Counter(get_attribute_column(root.headers, root.data, 'PlayTennis'))
+def most_common_outcome(headers, data):
+    cnt = Counter(get_attribute_column(headers, data, 'PlayTennis'))
     return cnt.most_common(1)[0][0]
 
 
@@ -87,19 +87,19 @@ def id3(root):
 
     max_gain_attribute = information_gain(root.headers, root.data)
     root.decision_attribute = max_gain_attribute
-    for attribute in set(get_attribute_column(root.headers, root.data, max_gain_attribute)):
-        child_data = split_data(root.headers, root.data, max_gain_attribute, attribute)
+    for attr_val in set(get_attribute_column(root.headers, root.data, max_gain_attribute)):
+        child_data = split_data(root.headers, root.data, max_gain_attribute, attr_val)
 
         if child_data is None or len(child_data) == 0:
             root.decision = most_common_outcome(root.headers, root.data)
             return
 
-        (new_headers, new_dataset) = drop_attribute(root.headers, child_data, max_gain_attribute)
-        root.child[attribute] = Node(new_headers, new_dataset)
-        id3(root.child[attribute])
+        (new_headers, new_data) = drop_attribute(root.headers, child_data, max_gain_attribute)
+        root.child[attr_val] = Node(new_headers, new_data)
+        id3(root.child[attr_val])
 
 
-root = Node(g_headers, data=g_dataset)
+root = Node(g_headers, g_data)
 id3(root)
 
 
