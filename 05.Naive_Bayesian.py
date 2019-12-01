@@ -60,9 +60,9 @@ yes = []
 no = []
 for i in range(len(train)):
     if data[i][-1] == 5.0:
-        no.append(data[i])
+        no.append(train[i])
     else:
-        yes.append(data[i])
+        yes.append(train[i])
 yes = summarize(yes)
 no = summarize(no)
 predictions = []
