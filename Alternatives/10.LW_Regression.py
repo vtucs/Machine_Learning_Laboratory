@@ -4,10 +4,8 @@ points. Select appropriate data set for your experiment and draw graphs.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-
-# Bokeh version is in alternatives folder
+from bokeh.plotting import figure, show
+from bokeh.layouts import gridplot
 
 
 def radial_kernel(x0, X, tau):
@@ -44,17 +42,19 @@ print(" Xo Domain Space(10 Samples):\n", domain[1:10])
 
 def plot_lwr(tau):
     # Prediction through regression
-    predictions = [local_regression(x0, X, Y, tau) for x0 in domain]
-    plt.scatter(X, Y, color='blue', alpha=0.3, s=20)
-    plt.plot(domain, predictions, color='red', linewidth=3)
-    plt.show()
+    prediction = [local_regression(x0, X, Y, tau) for x0 in domain]
+    plot = figure(plot_width=400, plot_height=400)
+    plot.title.text = 'tau=%g' % tau
+    plot.scatter(X, Y, alpha=.3)
+    plot.line(domain, prediction, line_width=2, color='red')
+    return plot
 
 
 # Plotting the curves with different tau
-plot_lwr(10.)
-plot_lwr(1.)
-plot_lwr(0.1)
-plot_lwr(0.01)
+show(gridplot([
+    [plot_lwr(10.), plot_lwr(1.)],
+    [plot_lwr(0.1), plot_lwr(0.01)]
+]))
 
 """
 Output:
