@@ -2,5 +2,5 @@
 
 ## Environment Setup
 ```
-python3 -m pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
+python -m pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html --user
 ```
